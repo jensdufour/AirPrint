@@ -5,8 +5,6 @@ We are using the "host" networking mode to easily passthrough the ports for prin
 Be aware that mapping ports and the usage of "host" networking mode is not supported.
 If you have additional questions about this, don't hesitate to contact me.
 
-**IF YOU NEED ADDITIONAL DRIVERS ADDED, PLEASE CREATE AN ISSUE**
-
 ## Compose
 Creating a container is often more desirable than directly running it:
 ```
@@ -38,7 +36,7 @@ $ docker create \
        -v /config/airprint/services:/services \
        -e CUPSADMIN="admin" \
        -e CUPSPASSWORD="password" \
-       tigerj/cups-airprint
+       firilith/AirPrint
 ```
 Follow this with `docker start` and your cups/airprint printer is running:
 ```
@@ -69,17 +67,6 @@ $ docker rm cups
 CUPS will be configurable at http://localhost:631 using the
 CUPSADMIN/CUPSPASSWORD when you do something administrative.
 
-If the `/services` volume isn't mapping to `/etc/avahi/services` then you will
-have to manually copy the .service files to that path at the command line.
-
-```
-$ docker exec -it airprint /bin/bash
-$ cp /services/* /etc/avahi/services/
-$ /etc/init.d/dbus restart
-$ /etc/init.d/avahi-daemon restart
-$ exit
-$ exit
-```
 ## Notes
 * CUPS doesn't write out `printers.conf` immediately when making changes even
 though they're live in CUPS. Therefore it will take a few moments before the

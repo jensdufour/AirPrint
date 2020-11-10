@@ -1,4 +1,4 @@
-FROM ubuntu:xenial
+FROM ubuntu:bionic
 
 ENV DEBIAN_FRONTEND noninteractive apt-get -q -y install postfix
 
@@ -19,10 +19,7 @@ EXPOSE 631
 # We want a mount for these
 VOLUME /config
 VOLUME /services
-	
-# Install Canon UFRII Drivers
-RUN sh /root/UFRII/install.sh
-RUN chmod +x /root/run_cups.sh
+
 # Add scripts
 CMD ["/root/run_cups.sh"]
 
