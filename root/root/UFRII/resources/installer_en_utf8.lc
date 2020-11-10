@@ -1,0 +1,39 @@
+##############################################################################
+##
+##  Canon Laser Printer Driver for Linux
+##  Copyright CANON INC. 2017
+##
+##  This program is free software; you can redistribute it and/or modify
+##  it under the terms of the GNU General Public License as published by
+##  the Free Software Foundation; either version 2 of the License, or
+##  (at your option) any later version.
+##
+##  This program is distributed in the hope that it will be useful,
+##  but WITHOUT ANY WARRANTY; without even the implied warranty of
+##  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+##  GNU General Public License for more details.
+##
+##  You should have received a copy of the GNU General Public License
+##  along with this program; if not, write to the Free Software
+##  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+##
+##############################################################################
+
+INST_COM_01_01="#----------------------------------------------------#"
+
+INST_ERR_01_01="The current user is %s.
+Change user to root, and then perform installation again."
+INST_ERR_02_01="Could not install."
+INST_MSG_01_01="This installer is recommended for the following distributions that are currently supported as of the release of this installer:
+- Fedora/Ubuntu/CentOS 7.3 or later/Debian 8.6 or later
+
+If this installer is run under distributions for which the support period has ended, the installation of additional system libraries may be necessary after driver installation is complete.
+
+Note that an internet connection is required for installation.
+
+Do you want to continue with installation? (y/n)"
+INST_MSG_02_01="Some system libraries could not be installed.
+Refer to the Readme file for more information.
+Do you want to continue with installation? (y/n)"
+INST_MSG_03_01="Installation is complete.
+Do you want to register the printer now? (y/n)"

@@ -1,0 +1,39 @@
+##############################################################################
+##
+##  Canon Laser Printer Driver for Linux
+##  Copyright CANON INC. 2017
+##
+##  This program is free software; you can redistribute it and/or modify
+##  it under the terms of the GNU General Public License as published by
+##  the Free Software Foundation; either version 2 of the License, or
+##  (at your option) any later version.
+##
+##  This program is distributed in the hope that it will be useful,
+##  but WITHOUT ANY WARRANTY; without even the implied warranty of
+##  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+##  GNU General Public License for more details.
+##
+##  You should have received a copy of the GNU General Public License
+##  along with this program; if not, write to the Free Software
+##  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+##
+##############################################################################
+
+INST_COM_01_01="#----------------------------------------------------#"
+
+INST_ERR_01_01="현재 사용자는 %s입니다.
+루트 사용자를 변경한 다음 설치를 다시 수행하십시오."
+INST_ERR_02_01="설치할 수 없습니다."
+INST_MSG_01_01="이 설치 프로그램 릴리스 시 지원되는 다음의 배포 패키지에서 이 설치 프로그램을 실행할 것을 권장합니다.
+- Fedora/Ubuntu/CentOS 7.3 이상/Debian 8.6 이상
+
+지원 기간이 끝난 배포 패키지에서 이 설치 프로그램을 실행할 경우, 드라이버 설치가 완료된 후 추가 시스템 라이브러리를 설치해야 할 수 있습니다.
+
+설치에는 인터넷 연결이 필요합니다.
+
+설치를 계속하시겠습니까? (y/n)"
+INST_MSG_02_01="일부 시스템 라이브러리를 설치할 수 없습니다.
+자세한 정보는 Readme 파일을 참조하십시오.
+설치를 계속하시겠습니까? (y/n)"
+INST_MSG_03_01="설치가 완료되었습니다.
+지금 프린터를 등록하시겠습니까? (y/n)"

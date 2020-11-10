@@ -1,0 +1,39 @@
+##############################################################################
+##
+##  Canon Laser Printer Driver for Linux
+##  Copyright CANON INC. 2017
+##
+##  This program is free software; you can redistribute it and/or modify
+##  it under the terms of the GNU General Public License as published by
+##  the Free Software Foundation; either version 2 of the License, or
+##  (at your option) any later version.
+##
+##  This program is distributed in the hope that it will be useful,
+##  but WITHOUT ANY WARRANTY; without even the implied warranty of
+##  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+##  GNU General Public License for more details.
+##
+##  You should have received a copy of the GNU General Public License
+##  along with this program; if not, write to the Free Software
+##  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+##
+##############################################################################
+
+INST_COM_01_01="#----------------------------------------------------#"
+
+INST_ERR_01_01="L'utilisateur actuel est %s.
+Changez l'utilisateur pour racine, puis effectuez à nouveau l'installation."
+INST_ERR_02_01="Installation impossible."
+INST_MSG_01_01="Ce programme d'installation est recommandé pour les distributions suivantes actuellement prises en charge comme version de ce programme d'installation :
+- Fedora/Ubuntu/CentOS 7.3 ou les distributions postérieures/Debian 8.6 ou les distributions postérieures
+
+Si ce programme d'installation est exécuté sur des distributions pour lesquelles la période de prise en charge a pris fin, l'installation de bibliothèques système supplémentaires pourrait être nécessaire une fois l'installation des pilotes terminée.
+
+Veuillez noter qu'une connexion Internet est nécessaire pour l'installation.
+
+Voulez-vous passer à l'installation ? (y/n)"
+INST_MSG_02_01="Certaines bibliothèques système pourraient ne pas être installées.
+Reportez-vous au fichier Lisezmoi pour plus d'informations.
+Voulez-vous passer à l'installation ? (y/n)"
+INST_MSG_03_01="L'installation est terminée.
+Voulez-vous enregistrer l'imprimante maintenant ? (y/n)"

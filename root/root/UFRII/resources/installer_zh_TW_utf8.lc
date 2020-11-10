@@ -1,0 +1,39 @@
+##############################################################################
+##
+##  Canon Laser Printer Driver for Linux
+##  Copyright CANON INC. 2017
+##
+##  This program is free software; you can redistribute it and/or modify
+##  it under the terms of the GNU General Public License as published by
+##  the Free Software Foundation; either version 2 of the License, or
+##  (at your option) any later version.
+##
+##  This program is distributed in the hope that it will be useful,
+##  but WITHOUT ANY WARRANTY; without even the implied warranty of
+##  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+##  GNU General Public License for more details.
+##
+##  You should have received a copy of the GNU General Public License
+##  along with this program; if not, write to the Free Software
+##  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+##
+##############################################################################
+
+INST_COM_01_01="#----------------------------------------------------#"
+
+INST_ERR_01_01="當前使用者是 %s。
+將使用者變更為根使用者，然後重新執行安裝。"
+INST_ERR_02_01="無法安裝。"
+INST_MSG_01_01="建議在安裝程式發佈時支援的以下發行套件中執行本安裝程式:
+- Fedora/Ubuntu/CentOS 7.3 或更新/Debian 8.6 或更新
+
+如果在已結束支援期間的發行套件中執行，驅動程式安裝完成後可能需要安裝其他系統庫。
+
+注意安裝時需要網際網路連線。
+
+是否繼續安裝？(y/n)"
+INST_MSG_02_01="某些系統庫無法安裝。
+有關詳細資訊，請參閱 Readme 檔案。
+是否繼續安裝？(y/n)"
+INST_MSG_03_01="安裝完成。
+是否立即註冊印表機？(y/n)"
