@@ -26,6 +26,7 @@ RUN apt install /PPD/*
 
 # Add scripts
 COPY root /
+RUN chmod +x /root/run_cups.sh 
 CMD ["/root/run_cups.sh"]
 
 # Baked-in config file changes
