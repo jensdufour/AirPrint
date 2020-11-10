@@ -20,6 +20,10 @@ EXPOSE 631
 VOLUME /config
 VOLUME /services
 
+# Install custom drivers from PPD
+ADD PPD /PPD
+RUN dpkg –i /PPD/*
+
 # Add scripts
 CMD ["/root/run_cups.sh"]
 
