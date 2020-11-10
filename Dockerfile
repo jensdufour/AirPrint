@@ -40,6 +40,3 @@ RUN sed -i 's/Listen localhost:631/Listen 0.0.0.0:631/' /etc/cups/cupsd.conf && 
 
 # Create symbolic links for Avahi
 RUN ln -s /services/* /etc/avahi/services/
-
-# Enable Avahi
-RUN systemctl enable dbus avahi-daemon

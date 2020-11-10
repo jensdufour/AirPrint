@@ -7,6 +7,8 @@ if [ $(grep -ci $CUPSADMIN /etc/shadow) -eq 0 ]; then
 fi
 echo $CUPSADMIN:$CUPSPASSWORD | chpasswd
 
+/etc/init.d/dbus start
+/etc/init.d/avahi-daemon start
 mkdir -p /config/ppd
 mkdir -p /services
 rm -rf /etc/cups/ppd
