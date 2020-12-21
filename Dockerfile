@@ -11,6 +11,7 @@ RUN apt-get update && apt-get install -y \
 	python-cups \
 	openprinting-ppds \
 	printer-driver-gutenprint \
+	printer-driver-splix \
 	&& rm -rf /var/lib/apt/lists/*
 
 # This will use port 631
