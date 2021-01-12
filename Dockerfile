@@ -1,4 +1,4 @@
-FROM ubuntu:bionic
+FROM debian:buster-slim
 
 ENV DEBIAN_FRONTEND noninteractive apt-get -q -y install postfix
 
