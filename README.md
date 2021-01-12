@@ -1,6 +1,6 @@
 # Welcome  <a href="https://hub.docker.com/r/firilith/airprint/"><img src="https://img.shields.io/docker/pulls/firilith/airprint.svg?style=flat-square&logo=docker" alt="Docker Pulls"></a>
 
-This Ubuntu-based Docker image runs a CUPS instance that is meant as an AirPrint
+This debain-based Docker image runs a CUPS instance that is meant as an AirPrint
 Based upon [quadportnick/docker-cups-airprint](https://github.com/quadportnick/docker-cups-airprint)
 We are using the "host" networking mode to easily passthrough the ports for printing. This can be changed to manually mapping all the ports.
 Be aware that mapping ports and the usage of "host" networking mode is not supported.
