@@ -1,4 +1,4 @@
-FROM debian:buster-slim
+FROM ubuntu:bionic
 
 ENV DEBIAN_FRONTEND=noninteractive
 
