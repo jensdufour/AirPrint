@@ -4,6 +4,7 @@ ENV DEBIAN_FRONTEND=noninteractive
 
 # Install the packages we need. Avahi will be included
 RUN apt-get update && apt-get install -y \
+	cpio \
 	cups \
 	cups-pdf \
 	hplip \
