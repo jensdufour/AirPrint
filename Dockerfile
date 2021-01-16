@@ -13,6 +13,7 @@ RUN apt-get update && apt-get install -y \
 	openprinting-ppds \
 	printer-driver-gutenprint \
 	foomatic-db \
+	printer-driver-splix \
 	&& rm -rf /var/lib/apt/lists/*
 
 # This will use port 631
