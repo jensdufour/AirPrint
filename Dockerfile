@@ -1,9 +1,10 @@
 FROM ubuntu:bionic
 
-ENV DEBIAN_FRONTEND noninteractive apt-get -q -y install postfix
+ENV DEBIAN_FRONTEND=noninteractive
 
 # Install the packages we need. Avahi will be included
 RUN apt-get update && apt-get install -y \
+	cpio \
 	cups \
 	cups-pdf \
 	hplip \
@@ -11,6 +12,7 @@ RUN apt-get update && apt-get install -y \
 	python-cups \
 	openprinting-ppds \
 	printer-driver-gutenprint \
+	foomatic-db \
 	printer-driver-splix \
 	&& rm -rf /var/lib/apt/lists/*
 
