@@ -225,6 +225,7 @@ ExecStart=
 ExecStart=-/sbin/agetty --autologin root --noclear --keep-baud tty%I 115200,38400,9600 $TERM
 AUTOLOGIN
 systemctl daemon-reload
+systemctl restart container-getty@1.service
 
 # ── Enable and start services ────────────────────────────
 msg "Starting services..."
