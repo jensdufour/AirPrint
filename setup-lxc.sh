@@ -60,7 +60,7 @@ fi
 
 read -rp "CUPS admin username [$CUPSADMIN]: " input && CUPSADMIN="${input:-$CUPSADMIN}"
 
-CUPSPASSWORD=$(tr -dc 'A-Za-z0-9' </dev/urandom | head -c 16)
+CUPSPASSWORD=$(head -c 128 /dev/urandom | tr -dc 'A-Za-z0-9' | head -c 16)
 msg "Generated CUPS admin password (shown at the end)."
 
 # ── Download Debian 12 template ──────────────────────────
