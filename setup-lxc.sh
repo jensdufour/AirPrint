@@ -2,7 +2,7 @@
 # Setup AirPrint relay LXC on Proxmox VE
 # Usage: bash -c "$(curl -fsSL https://raw.githubusercontent.com/jensdufour/AirPrint/proxmox/setup-lxc.sh)"
 
-set -euo pipefail
+set -euo
 
 REPO_BASE="https://raw.githubusercontent.com/jensdufour/AirPrint"
 REPO_PROXMOX="$REPO_BASE/proxmox"

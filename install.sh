@@ -2,7 +2,7 @@
 # AirPrint relay install script - runs inside LXC
 # Downloads Canon UFR II drivers from the master branch PPD folder
 
-set -euo pipefail
+set -euo
 
 REPO_PROXMOX="${REPO_PROXMOX:-https://raw.githubusercontent.com/jensdufour/AirPrint/proxmox}"
 REPO_MASTER="${REPO_MASTER:-https://raw.githubusercontent.com/jensdufour/AirPrint/master}"
