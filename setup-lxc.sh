@@ -14,6 +14,7 @@ RAM="512"
 CORES="1"
 STORAGE="local-lvm"
 BRIDGE="vmbr0"
+IP_CONFIG="dhcp"
 CUPSADMIN="admin"
 CUPSPASSWORD=""
 
@@ -48,13 +49,17 @@ read -rp "RAM in MB [$RAM]: " input && RAM="${input:-$RAM}"
 read -rp "CPU cores [$CORES]: " input && CORES="${input:-$CORES}"
 read -rp "Storage [$STORAGE]: " input && STORAGE="${input:-$STORAGE}"
 read -rp "Network bridge [$BRIDGE]: " input && BRIDGE="${input:-$BRIDGE}"
+read -rp "IP address (CIDR) or 'dhcp' [$IP_CONFIG]: " input && IP_CONFIG="${input:-$IP_CONFIG}"
+
+if [ "$IP_CONFIG" != "dhcp" ]; then
+  GW_DEFAULT=$(echo "$IP_CONFIG" | sed 's|/.*||; s|\.[0-9]*$|.1|')
+  read -rp "Gateway [$GW_DEFAULT]: " input && GATEWAY="${input:-$GW_DEFAULT}"
+fi
+
 read -rp "CUPS admin username [$CUPSADMIN]: " input && CUPSADMIN="${input:-$CUPSADMIN}"
 
-while [ -z "$CUPSPASSWORD" ]; do
-  read -rsp "CUPS admin password: " CUPSPASSWORD
-  echo ""
-  [ -z "$CUPSPASSWORD" ] && echo "Password cannot be empty."
-done
+CUPSPASSWORD=$(tr -dc 'A-Za-z0-9' </dev/urandom | head -c 16)
+msg "Generated CUPS admin password (shown at the end)."
 
 # ── Download Debian 12 template ──────────────────────────
 TEMPLATE="debian-12-standard"
@@ -80,7 +85,7 @@ pct create "$CT_ID" "$TEMPLATE_FILE" \
   --memory "$RAM" \
   --cores "$CORES" \
   --rootfs "$STORAGE:$DISK_SIZE" \
-  --net0 "name=eth0,bridge=$BRIDGE,ip=dhcp" \
+  --net0 "name=eth0,bridge=$BRIDGE,$([ "$IP_CONFIG" = "dhcp" ] && echo 'ip=dhcp' || echo "ip=$IP_CONFIG,gw=$GATEWAY")" \
   --unprivileged 1 \
   --features nesting=1 \
   --onboot 1 \
@@ -126,5 +131,7 @@ echo "  Hostname:   $HOSTNAME"
 echo "  IP:         ${IP:-unknown}"
 echo "  CUPS UI:    http://${IP:-<ip>}:631"
 echo "  Admin user: $CUPSADMIN"
+echo "  Admin pass: $CUPSPASSWORD"
 echo ""
 ok "AirPrint relay is running. Add printers via the CUPS web UI."
+ok "Save the password above, it will not be shown again."
