@@ -4,7 +4,9 @@
 
 set -euo pipefail
 
-REPO="https://raw.githubusercontent.com/jensdufour/AirPrint"
+REPO_BASE="https://raw.githubusercontent.com/jensdufour/AirPrint"
+REPO_PROXMOX="$REPO_BASE/proxmox"
+REPO_MASTER="$REPO_BASE/master"
 
 # ── Defaults ──────────────────────────────────────────────
 CT_ID=""
@@ -114,8 +116,9 @@ msg "Running install script inside LXC..."
 pct exec "$CT_ID" -- bash -c "
   export CUPSADMIN='$CUPSADMIN'
   export CUPSPASSWORD='$CUPSPASSWORD'
-  export REPO='$REPO'
-  bash <(curl -fsSL '$REPO/proxmox/install.sh')
+  export REPO_PROXMOX='$REPO_PROXMOX'
+  export REPO_MASTER='$REPO_MASTER'
+  bash <(curl -fsSL '$REPO_PROXMOX/install.sh')
 "
 
 # ── Get IP and print summary ─────────────────────────────

@@ -4,11 +4,11 @@
 
 set -euo pipefail
 
-REPO="${REPO:-https://raw.githubusercontent.com/jensdufour/AirPrint}"
+REPO_PROXMOX="${REPO_PROXMOX:-https://raw.githubusercontent.com/jensdufour/AirPrint/proxmox}"
+REPO_MASTER="${REPO_MASTER:-https://raw.githubusercontent.com/jensdufour/AirPrint/master}"
+GH_DL="https://github.com/jensdufour/AirPrint/raw/master"
 CUPSADMIN="${CUPSADMIN:-admin}"
 CUPSPASSWORD="${CUPSPASSWORD:-password}"
-
-MASTER_URL="$REPO/master"
 
 msg()  { printf "\033[1;34m[INFO]\033[0m  %s\n" "$1"; }
 ok()   { printf "\033[1;32m[OK]\033[0m    %s\n" "$1"; }
@@ -30,13 +30,13 @@ ok "Packages installed."
 
 # ── Canon UFR II drivers ─────────────────────────────────
 msg "Installing Canon UFR II drivers..."
-DRIVER_URL="$MASTER_URL/PPD"
+DRIVER_URL="$GH_DL/PPD"
 
 tmpdir=$(mktemp -d)
 trap 'rm -rf "$tmpdir"' EXIT
 
 # Core driver package (required for all Canon UFR II models)
-curl -fsSL "$DRIVER_URL/cnrdrvcups-ufr2-uk_5.20-1_amd64.deb" -o "$tmpdir/ufr2-core.deb"
+curl -fsSL -L "$DRIVER_URL/cnrdrvcups-ufr2-uk_5.20-1_amd64.deb" -o "$tmpdir/ufr2-core.deb"
 dpkg -i "$tmpdir/ufr2-core.deb" >/dev/null 2>&1 || apt-get install -f -yqq >/dev/null 2>&1
 
 # Model-specific PPD packages
@@ -80,7 +80,7 @@ PPD_PACKAGES=(
 )
 
 for pkg in "${PPD_PACKAGES[@]}"; do
-  curl -fsSL "$DRIVER_URL/$pkg" -o "$tmpdir/$pkg" 2>/dev/null && \
+  curl -fsSL -L "$DRIVER_URL/$pkg" -o "$tmpdir/$pkg" 2>/dev/null && \
     dpkg -i "$tmpdir/$pkg" >/dev/null 2>&1 || true
 done
 apt-get install -f -yqq >/dev/null 2>&1 || true
@@ -179,7 +179,7 @@ ok "CUPS configured."
 msg "Installing AirPrint service generator..."
 mkdir -p /opt/airprint
 
-curl -fsSL "$MASTER_URL/scripts/airprint-generate.py" -o /opt/airprint/airprint-generate.py
+curl -fsSL "$REPO_MASTER/scripts/airprint-generate.py" -o /opt/airprint/airprint-generate.py
 chmod +x /opt/airprint/airprint-generate.py
 
 # ── Printer watcher service ──────────────────────────────
