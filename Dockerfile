@@ -1,45 +1,41 @@
-FROM ubuntu:bionic
+# Stage 1: Extract PPD/driver files from .deb packages
+FROM debian:bookworm-slim AS ppd-extractor
+COPY PPD/ /tmp/PPD/
+RUN mkdir -p /output && \
+	for deb in /tmp/PPD/*.deb; do \
+	dpkg-deb -x "$deb" /output/ 2>/dev/null || true; \
+	done
 
-ENV DEBIAN_FRONTEND=noninteractive
+# Stage 2: Alpine runtime
+FROM alpine:3.21
 
-# Install the packages we need. Avahi will be included
-RUN apt-get update && apt-get install -y \
-	cpio \
+RUN apk add --no-cache \
 	cups \
-	cups-pdf \
-	hplip \
+	cups-filters \
+	avahi \
+	dbus \
 	inotify-tools \
-	python-cups \
-	openprinting-ppds \
-	printer-driver-gutenprint \
-	foomatic-db \
-	printer-driver-splix \
-	&& rm -rf /var/lib/apt/lists/*
+	python3 \
+	py3-cups \
+	shadow \
+	gcompat \
+	libstdc++ \
+	libgcc
 
-# This will use port 631
+ENV CUPSADMIN=admin \
+	CUPSPASSWORD=password
+
+# Copy extracted driver files from Debian stage
+COPY --from=ppd-extractor /output/ /
+
 EXPOSE 631
+VOLUME /config /services
 
-# We want a mount for these
-VOLUME /config
-VOLUME /services
+HEALTHCHECK --interval=30s --timeout=10s --retries=3 \
+	CMD cupsd -t || exit 1
 
-# Install custom drivers from PPD
-ADD PPD /PPD
-RUN apt install /PPD/*
+COPY cupsd.conf /etc/cups/cupsd.conf
+COPY scripts/ /opt/airprint/
+RUN chmod +x /opt/airprint/*
 
-# Add scripts
-COPY root /
-RUN chmod +x /root/* 
-CMD ["/root/run_cups.sh"]
-
-# Baked-in config file changes
-RUN sed -i 's/Listen localhost:631/Listen 0.0.0.0:631/' /etc/cups/cupsd.conf && \
-	sed -i 's/Browsing Off/Browsing On/' /etc/cups/cupsd.conf && \
-	sed -i 's/<Location \/>/<Location \/>\n  Allow All/' /etc/cups/cupsd.conf && \
-	sed -i 's/<Location \/admin>/<Location \/admin>\n  Allow All\n  Require user @SYSTEM/' /etc/cups/cupsd.conf && \
-	sed -i 's/<Location \/admin\/conf>/<Location \/admin\/conf>\n  Allow All/' /etc/cups/cupsd.conf && \
-	echo "ServerAlias *" >> /etc/cups/cupsd.conf && \
-	echo "DefaultEncryption Never" >> /etc/cups/cupsd.conf
-
-# Create symbolic links for Avahi
-RUN ln -s /services/* /etc/avahi/services/
+CMD ["/opt/airprint/run_cups.sh"]
