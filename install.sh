@@ -217,6 +217,15 @@ UNIT
 
 ok "AirPrint watcher installed."
 
+# ── Console autologin (root shell without login prompt) ──
+mkdir -p /etc/systemd/system/container-getty@1.service.d
+cat > /etc/systemd/system/container-getty@1.service.d/override.conf << 'AUTOLOGIN'
+[Service]
+ExecStart=
+ExecStart=-/sbin/agetty --autologin root --noclear --keep-baud tty%I 115200,38400,9600 $TERM
+AUTOLOGIN
+systemctl daemon-reload
+
 # ── Enable and start services ────────────────────────────
 msg "Starting services..."
 systemctl enable --now dbus
