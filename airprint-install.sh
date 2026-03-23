@@ -1,46 +1,39 @@
 #!/usr/bin/env bash
-# AirPrint relay install script - runs inside LXC
-# Downloads Canon UFR II drivers from the master branch PPD folder
 
-set -euo
+# Copyright (c) 2024-2026 jensdufour
+# Author: Jens Du Four
+# License: MIT | https://github.com/jensdufour/AirPrint/raw/master/LICENSE
+# Source: https://github.com/jensdufour/AirPrint
 
-REPO_PROXMOX="${REPO_PROXMOX:-https://raw.githubusercontent.com/jensdufour/AirPrint/proxmox}"
-REPO_MASTER="${REPO_MASTER:-https://raw.githubusercontent.com/jensdufour/AirPrint/master}"
+source /dev/stdin <<<"$FUNCTIONS_FILE_PATH"
+color
+verb_ip6
+catch_errors
+setting_up_container
+network_check
+update_os
+
 GH_DL="https://github.com/jensdufour/AirPrint/raw/master"
-CUPSADMIN="${CUPSADMIN:-admin}"
-CUPSPASSWORD="${CUPSPASSWORD:-password}"
+REPO_MASTER="https://raw.githubusercontent.com/jensdufour/AirPrint/master"
 
-msg()  { printf "\033[1;34m[INFO]\033[0m  %s\n" "$1"; }
-ok()   { printf "\033[1;32m[OK]\033[0m    %s\n" "$1"; }
-err()  { printf "\033[1;31m[ERROR]\033[0m %s\n" "$1" >&2; exit 1; }
-
-# ── System packages ──────────────────────────────────────
-msg "Updating packages..."
-apt-get update -qq
-apt-get install -yqq \
+msg_info "Installing Dependencies"
+$STD apt-get install -y \
   cups \
   cups-filters \
   avahi-daemon \
   dbus \
   python3 \
   python3-cups \
-  inotify-tools \
-  curl \
-  >/dev/null 2>&1
-ok "Packages installed."
+  inotify-tools
+msg_ok "Installed Dependencies"
 
-# ── Canon UFR II drivers ─────────────────────────────────
-msg "Installing Canon UFR II drivers..."
+msg_info "Installing Canon UFR II Drivers"
 DRIVER_URL="$GH_DL/PPD"
-
 tmpdir=$(mktemp -d)
-trap 'rm -rf "$tmpdir"' EXIT
 
-# Core driver package (required for all Canon UFR II models)
 curl -fsSL -L "$DRIVER_URL/cnrdrvcups-ufr2-uk_5.20-1_amd64.deb" -o "$tmpdir/ufr2-core.deb"
-dpkg -i "$tmpdir/ufr2-core.deb" >/dev/null 2>&1 || apt-get install -f -yqq >/dev/null 2>&1
+$STD dpkg -i "$tmpdir/ufr2-core.deb" || $STD apt-get install -f -y
 
-# Model-specific PPD packages
 PPD_PACKAGES=(
   cnrcupsiprc710zk_5.20-1_all.deb
   cnrcupsir2425zk_5.20-1_all.deb
@@ -81,24 +74,14 @@ PPD_PACKAGES=(
 )
 
 for pkg in "${PPD_PACKAGES[@]}"; do
-  curl -fsSL -L "$DRIVER_URL/$pkg" -o "$tmpdir/$pkg" 2>/dev/null && \
-    dpkg -i "$tmpdir/$pkg" >/dev/null 2>&1 || true
+  curl -fsSL -L "$DRIVER_URL/$pkg" -o "$tmpdir/$pkg" 2>/dev/null &&
+    $STD dpkg -i "$tmpdir/$pkg" || true
 done
-apt-get install -f -yqq >/dev/null 2>&1 || true
-ok "Canon drivers installed."
+$STD apt-get install -f -y || true
+rm -rf "$tmpdir"
+msg_ok "Installed Canon UFR II Drivers"
 
-# ── CUPS admin user ──────────────────────────────────────
-msg "Configuring CUPS admin..."
-if ! id "$CUPSADMIN" >/dev/null 2>&1; then
-  useradd -m -s /bin/bash -G lpadmin "$CUPSADMIN"
-else
-  usermod -aG lpadmin "$CUPSADMIN"
-fi
-echo "$CUPSADMIN:$CUPSPASSWORD" | chpasswd
-ok "Admin user '$CUPSADMIN' configured."
-
-# ── CUPS configuration ───────────────────────────────────
-msg "Configuring CUPS..."
+msg_info "Configuring CUPS"
 cat > /etc/cups/cupsd.conf << 'CUPSCONF'
 LogLevel warn
 MaxLogSize 0
@@ -177,16 +160,19 @@ DefaultEncryption Never
   </Limit>
 </Policy>
 CUPSCONF
-ok "CUPS configured."
 
-# ── AirPrint generator script ────────────────────────────
-msg "Installing AirPrint service generator..."
+useradd -m -s /bin/bash -G lpadmin admin 2>/dev/null || usermod -aG lpadmin admin
+echo "admin:admin" | chpasswd
+systemctl enable -q --now dbus
+systemctl enable -q --now cups
+systemctl enable -q --now avahi-daemon
+msg_ok "Configured CUPS"
+
+msg_info "Installing AirPrint Service Generator"
 mkdir -p /opt/airprint
-
 curl -fsSL "$REPO_MASTER/scripts/airprint-generate.py" -o /opt/airprint/airprint-generate.py
 chmod +x /opt/airprint/airprint-generate.py
 
-# ── Printer watcher service ──────────────────────────────
 cat > /opt/airprint/printer-update.sh << 'WATCHER'
 #!/bin/sh
 inotifywait -m -e close_write,moved_to,create /etc/cups |
@@ -215,32 +201,9 @@ RestartSec=5
 WantedBy=multi-user.target
 UNIT
 
-ok "AirPrint watcher installed."
+systemctl enable -q --now airprint-watcher
+msg_ok "Installed AirPrint Service Generator"
 
-# ── Console autologin (root shell without login prompt) ──
-mkdir -p /etc/systemd/system/container-getty@1.service.d
-cat > /etc/systemd/system/container-getty@1.service.d/override.conf << 'AUTOLOGIN'
-[Service]
-ExecStart=
-ExecStart=-/sbin/agetty --autologin root --noclear --keep-baud tty%I 115200,38400,9600 $TERM
-AUTOLOGIN
-systemctl daemon-reload
-systemctl restart container-getty@1.service
-
-# ── Enable and start services ────────────────────────────
-msg "Starting services..."
-systemctl enable --now dbus
-systemctl enable --now cups
-systemctl enable --now avahi-daemon
-systemctl enable --now airprint-watcher
-ok "All services running."
-
-# Verify CUPS is listening
-if ss -tlnp | grep -q ':631'; then
-  ok "CUPS is listening on port 631."
-else
-  err "CUPS is NOT listening on port 631. Check: systemctl status cups"
-fi
-
-echo ""
-ok "AirPrint relay installation complete."
+motd_ssh
+customize
+cleanup_lxc
