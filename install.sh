@@ -5,14 +5,6 @@
 # License: MIT | https://github.com/jensdufour/AirPrint/raw/master/LICENSE
 # Source: https://github.com/jensdufour/AirPrint
 
-source /dev/stdin <<<"$FUNCTIONS_FILE_PATH"
-color
-verb_ip6
-catch_errors
-setting_up_container
-network_check
-update_os
-
 GH_DL="https://github.com/jensdufour/AirPrint/raw/master"
 REPO_MASTER="https://raw.githubusercontent.com/jensdufour/AirPrint/master"
 
@@ -163,7 +155,6 @@ CUPSCONF
 
 useradd -m -s /bin/bash -G lpadmin admin 2>/dev/null || usermod -aG lpadmin admin
 echo "admin:admin" | chpasswd
-systemctl disable -q --now cups.socket cups.path
 systemctl enable -q --now dbus
 systemctl enable -q --now cups
 systemctl enable -q --now avahi-daemon
@@ -204,7 +195,3 @@ UNIT
 
 systemctl enable -q --now airprint-watcher
 msg_ok "Installed AirPrint Service Generator"
-
-motd_ssh
-customize
-cleanup_lxc
