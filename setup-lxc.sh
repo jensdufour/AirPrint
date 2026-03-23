@@ -4,7 +4,7 @@
 
 set -euo pipefail
 
-REPO="https://raw.githubusercontent.com/jensdufour/AirPrint/proxmox"
+REPO="https://raw.githubusercontent.com/jensdufour/AirPrint"
 
 # ── Defaults ──────────────────────────────────────────────
 CT_ID=""
@@ -115,7 +115,7 @@ pct exec "$CT_ID" -- bash -c "
   export CUPSADMIN='$CUPSADMIN'
   export CUPSPASSWORD='$CUPSPASSWORD'
   export REPO='$REPO'
-  bash <(curl -fsSL '$REPO/install.sh')
+  bash <(curl -fsSL '$REPO/proxmox/install.sh')
 "
 
 # ── Get IP and print summary ─────────────────────────────

@@ -8,6 +8,8 @@ REPO="${REPO:-https://raw.githubusercontent.com/jensdufour/AirPrint}"
 CUPSADMIN="${CUPSADMIN:-admin}"
 CUPSPASSWORD="${CUPSPASSWORD:-password}"
 
+MASTER_URL="$REPO/master"
+
 msg()  { printf "\033[1;34m[INFO]\033[0m  %s\n" "$1"; }
 ok()   { printf "\033[1;32m[OK]\033[0m    %s\n" "$1"; }
 err()  { printf "\033[1;31m[ERROR]\033[0m %s\n" "$1" >&2; exit 1; }
@@ -28,7 +30,7 @@ ok "Packages installed."
 
 # ── Canon UFR II drivers ─────────────────────────────────
 msg "Installing Canon UFR II drivers..."
-DRIVER_URL="$REPO/master/PPD"
+DRIVER_URL="$MASTER_URL/PPD"
 
 tmpdir=$(mktemp -d)
 trap 'rm -rf "$tmpdir"' EXIT
@@ -177,7 +179,7 @@ ok "CUPS configured."
 msg "Installing AirPrint service generator..."
 mkdir -p /opt/airprint
 
-curl -fsSL "$REPO/master/scripts/airprint-generate.py" -o /opt/airprint/airprint-generate.py
+curl -fsSL "$MASTER_URL/scripts/airprint-generate.py" -o /opt/airprint/airprint-generate.py
 chmod +x /opt/airprint/airprint-generate.py
 
 # ── Printer watcher service ──────────────────────────────
