@@ -21,6 +21,7 @@ apt-get install -yqq \
   cups \
   cups-filters \
   avahi-daemon \
+  dbus \
   python3 \
   python3-cups \
   inotify-tools \
@@ -89,7 +90,9 @@ ok "Canon drivers installed."
 # ── CUPS admin user ──────────────────────────────────────
 msg "Configuring CUPS admin..."
 if ! id "$CUPSADMIN" >/dev/null 2>&1; then
-  useradd -r -G lpadmin -M "$CUPSADMIN"
+  useradd -m -s /bin/bash -G lpadmin "$CUPSADMIN"
+else
+  usermod -aG lpadmin "$CUPSADMIN"
 fi
 echo "$CUPSADMIN:$CUPSPASSWORD" | chpasswd
 ok "Admin user '$CUPSADMIN' configured."
@@ -99,6 +102,7 @@ msg "Configuring CUPS..."
 cat > /etc/cups/cupsd.conf << 'CUPSCONF'
 LogLevel warn
 MaxLogSize 0
+SystemGroup lpadmin
 
 Listen 0.0.0.0:631
 Listen /run/cups/cups.sock
@@ -215,10 +219,18 @@ ok "AirPrint watcher installed."
 
 # ── Enable and start services ────────────────────────────
 msg "Starting services..."
-systemctl enable --now cups >/dev/null 2>&1
-systemctl enable --now avahi-daemon >/dev/null 2>&1
-systemctl enable --now airprint-watcher >/dev/null 2>&1
+systemctl enable --now dbus
+systemctl enable --now cups
+systemctl enable --now avahi-daemon
+systemctl enable --now airprint-watcher
 ok "All services running."
+
+# Verify CUPS is listening
+if ss -tlnp | grep -q ':631'; then
+  ok "CUPS is listening on port 631."
+else
+  err "CUPS is NOT listening on port 631. Check: systemctl status cups"
+fi
 
 echo ""
 ok "AirPrint relay installation complete."
