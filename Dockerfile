@@ -12,15 +12,21 @@ FROM alpine:3.21
 RUN apk add --no-cache \
 	cups \
 	cups-filters \
+	cups-dev \
 	avahi \
 	dbus \
 	inotify-tools \
 	python3 \
-	py3-cups \
+	py3-pip \
+	python3-dev \
+	gcc \
+	musl-dev \
 	shadow \
 	gcompat \
 	libstdc++ \
-	libgcc
+	libgcc \
+	&& pip3 install --break-system-packages pycups \
+	&& apk del --no-cache cups-dev python3-dev gcc musl-dev py3-pip
 
 ENV CUPSADMIN=admin \
 	CUPSPASSWORD=password
