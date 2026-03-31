@@ -11,6 +11,11 @@ if ! id "$CUPSADMIN" >/dev/null 2>&1; then
 fi
 echo "$CUPSADMIN:$CUPSPASSWORD" | chpasswd
 
+# Set default paper size to A4
+if command -v paperconfig >/dev/null 2>&1; then
+    paperconfig -p a4
+fi
+
 # Set up persistent config
 mkdir -p /config/ppd /services
 rm -rf /etc/cups/ppd
@@ -21,7 +26,7 @@ if [ ! -f /config/printers.conf ]; then
 fi
 cp /config/printers.conf /etc/cups/printers.conf
 
-# Start dbus if not already running (allows use of host dbus via volume mount)
+# Start dbus if not already running
 if [ ! -S /run/dbus/system_bus_socket ]; then
     mkdir -p /run/dbus
     rm -f /run/dbus/pid
