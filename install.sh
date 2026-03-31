@@ -63,48 +63,38 @@ echo "a4" > /etc/papersize
 msg_ok "Default paper size set to A4"
 
 # ---------------------------------------------------------------------------
-# Canon UFR II drivers (V6.30 for Debian 12)
+# Canon UFR II drivers (V6.20 for Debian 12)
 # ---------------------------------------------------------------------------
 msg_info "Installing Canon UFR II drivers"
 tmpdir=$(mktemp -d)
 
-# Download the V6.30 driver tarball from Canon
-CANON_URL="https://gdlp01.c-wss.com/gds/8/0100007658/01/linux-UFRII-drv-v630-uken-18.tar.gz"
+# Download the V6.20 driver tarball from Canon CDN
+CANON_URL="http://gdlp01.c-wss.com/gds/8/0100007658/47/linux-UFRII-drv-v620-m17n-20.tar.gz"
 if curl -fsSL -L "$CANON_URL" -o "$tmpdir/canon-ufr2.tar.gz"; then
   tar -xzf "$tmpdir/canon-ufr2.tar.gz" -C "$tmpdir"
 
-  # Find and install the core amd64 driver package
-  CORE_DEB=$(find "$tmpdir" -name 'cnrdrvcups-ufr2-uk_*_amd64.deb' -type f | head -1)
-  if [ -n "$CORE_DEB" ]; then
-    dpkg -i "$CORE_DEB" 2>&1 || true
-    apt-get install -f -y >/dev/null 2>&1
+  # Find and install the Debian amd64 packages
+  DEBS_DIR=$(find "$tmpdir" -type d -name 'amd64' | head -1)
+  if [ -z "$DEBS_DIR" ]; then
+    DEBS_DIR=$(find "$tmpdir" -type d -name '64-bit_Driver' | head -1)
+  fi
+  if [ -z "$DEBS_DIR" ]; then
+    DEBS_DIR="$tmpdir"
   fi
 
-  # Install all PPD packages
-  for ppd_deb in $(find "$tmpdir" -name 'cnrcups*.deb' -type f); do
-    dpkg -i "$ppd_deb" >/dev/null 2>&1 || true
+  # Install common package first, then the UFR II driver, then PPDs
+  for deb in $(find "$DEBS_DIR" -name '*common*.deb' -type f 2>/dev/null); do
+    dpkg -i "$deb" 2>&1 || true
+  done
+  for deb in $(find "$DEBS_DIR" -name '*ufr2*amd64*.deb' -type f 2>/dev/null); do
+    dpkg -i "$deb" 2>&1 || true
+  done
+  for deb in $(find "$DEBS_DIR" -name 'cnrcups*.deb' -type f 2>/dev/null); do
+    dpkg -i "$deb" 2>&1 || true
   done
   apt-get install -f -y >/dev/null 2>&1
 else
-  msg_error "Could not download Canon driver from Canon servers"
-  msg_info "Falling back to repo driver packages (v5.20)"
-
-  # Fallback: try the old packages from the repo
-  curl -fsSL -L "$DRIVER_URL/cnrdrvcups-ufr2-uk_5.20-1_amd64.deb" \
-    -o "$tmpdir/ufr2-core.deb"
-  dpkg -i "$tmpdir/ufr2-core.deb" >/dev/null 2>&1 || true
-  apt-get install -f -y >/dev/null 2>&1
-
-  for pkg in \
-    cnrcupsir2425zk_5.20-1_all.deb \
-    cnrcupsir2625zk_5.10-1_all.deb \
-    cnrcupsir2635zk_5.10-1_all.deb \
-    cnrcupsirc3120zk_5.10-1_all.deb \
-    cnrcupsirc3125zk_5.10-1_all.deb; do
-    curl -fsSL -L "$DRIVER_URL/$pkg" -o "$tmpdir/$pkg" 2>/dev/null &&
-      dpkg -i "$tmpdir/$pkg" >/dev/null 2>&1 || true
-  done
-  apt-get install -f -y >/dev/null 2>&1
+  msg_error "Could not download Canon driver from Canon CDN"
 fi
 
 rm -rf "$tmpdir"
