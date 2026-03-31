@@ -63,69 +63,60 @@ echo "a4" > /etc/papersize
 msg_ok "Default paper size set to A4"
 
 # ---------------------------------------------------------------------------
-# Canon UFR II drivers
+# Canon UFR II drivers (V6.30 for Debian 12)
 # ---------------------------------------------------------------------------
 msg_info "Installing Canon UFR II drivers"
 tmpdir=$(mktemp -d)
 
-curl -fsSL -L "$DRIVER_URL/cnrdrvcups-ufr2-uk_5.20-1_amd64.deb" \
-  -o "$tmpdir/ufr2-core.deb"
-dpkg -i "$tmpdir/ufr2-core.deb" >/dev/null 2>&1 || true
-apt-get install -f -y >/dev/null 2>&1
+# Download the V6.30 driver tarball from Canon
+CANON_URL="https://gdlp01.c-wss.com/gds/8/0100007658/01/linux-UFRII-drv-v630-uken-18.tar.gz"
+if curl -fsSL -L "$CANON_URL" -o "$tmpdir/canon-ufr2.tar.gz"; then
+  tar -xzf "$tmpdir/canon-ufr2.tar.gz" -C "$tmpdir"
 
-PPD_PACKAGES=(
-  cnrcupsiprc710zk_5.20-1_all.deb
-  cnrcupsir2425zk_5.20-1_all.deb
-  cnrcupsir2625zk_5.10-1_all.deb
-  cnrcupsir2635zk_5.10-1_all.deb
-  cnrcupsiradv4725zk_5.10-1_all.deb
-  cnrcupsiradv4745zk_5.10-1_all.deb
-  cnrcupsiradv527zk_5.20-1_all.deb
-  cnrcupsiradv6000zk_5.10-1_all.deb
-  cnrcupsiradv617zk_5.20-1_all.deb
-  cnrcupsiradv6755zk_5.10-1_all.deb
-  cnrcupsiradv6780zk_5.10-1_all.deb
-  cnrcupsiradv717zk_5.20-1_all.deb
-  cnrcupsiradv8705zk_5.10-1_all.deb
-  cnrcupsiradv8786zk_5.10-1_all.deb
-  cnrcupsiradvc257zk_5.20-1_all.deb
-  cnrcupsiradvc3720zk_5.10-1_all.deb
-  cnrcupsiradvc3725zk_5.10-1_all.deb
-  cnrcupsiradvc477zk_5.20-1_all.deb
-  cnrcupsiradvc5735zk_5.10-1_all.deb
-  cnrcupsiradvc5750zk_5.10-1_all.deb
-  cnrcupsiradvc7765zk_5.10-1_all.deb
-  cnrcupsiradvc7780zk_5.10-1_all.deb
-  cnrcupsirc3120lzk_5.10-1_all.deb
-  cnrcupsirc3120zk_5.10-1_all.deb
-  cnrcupsirc3125zk_5.10-1_all.deb
-  cnrcupslbp1127czk_5.20-1_all.deb
-  cnrcupslbp1238zk_5.20-1_all.deb
-  cnrcupslbp222zk_5.10-1_all.deb
-  cnrcupslbp223zk_5.10-1_all.deb
-  cnrcupslbp225zk_5.10-1_all.deb
-  cnrcupslbp226zk_5.10-1_all.deb
-  cnrcupslbp227zk_5.10-1_all.deb
-  cnrcupslbp228zk_5.10-1_all.deb
-  cnrcupsmf1127czk_5.20-1_all.deb
-  cnrcupsmf1238zk_5.20-1_all.deb
-  cnrcupsx1643pzk_5.20-1_all.deb
-)
+  # Find and install the core amd64 driver package
+  CORE_DEB=$(find "$tmpdir" -name 'cnrdrvcups-ufr2-uk_*_amd64.deb' -type f | head -1)
+  if [ -n "$CORE_DEB" ]; then
+    dpkg -i "$CORE_DEB" 2>&1 || true
+    apt-get install -f -y >/dev/null 2>&1
+  fi
 
-for pkg in "${PPD_PACKAGES[@]}"; do
-  curl -fsSL -L "$DRIVER_URL/$pkg" -o "$tmpdir/$pkg" 2>/dev/null &&
-    dpkg -i "$tmpdir/$pkg" >/dev/null 2>&1 || true
-done
-apt-get install -f -y >/dev/null 2>&1
+  # Install all PPD packages
+  for ppd_deb in $(find "$tmpdir" -name 'cnrcups*.deb' -type f); do
+    dpkg -i "$ppd_deb" >/dev/null 2>&1 || true
+  done
+  apt-get install -f -y >/dev/null 2>&1
+else
+  msg_error "Could not download Canon driver from Canon servers"
+  msg_info "Falling back to repo driver packages (v5.20)"
+
+  # Fallback: try the old packages from the repo
+  curl -fsSL -L "$DRIVER_URL/cnrdrvcups-ufr2-uk_5.20-1_amd64.deb" \
+    -o "$tmpdir/ufr2-core.deb"
+  dpkg -i "$tmpdir/ufr2-core.deb" >/dev/null 2>&1 || true
+  apt-get install -f -y >/dev/null 2>&1
+
+  for pkg in \
+    cnrcupsir2425zk_5.20-1_all.deb \
+    cnrcupsir2625zk_5.10-1_all.deb \
+    cnrcupsir2635zk_5.10-1_all.deb \
+    cnrcupsirc3120zk_5.10-1_all.deb \
+    cnrcupsirc3125zk_5.10-1_all.deb; do
+    curl -fsSL -L "$DRIVER_URL/$pkg" -o "$tmpdir/$pkg" 2>/dev/null &&
+      dpkg -i "$tmpdir/$pkg" >/dev/null 2>&1 || true
+  done
+  apt-get install -f -y >/dev/null 2>&1
+fi
+
 rm -rf "$tmpdir"
 
-# Verify the UFR II filter is executable
-if [ -x /usr/lib/cups/filter/rastertocnpdf ]; then
-  msg_ok "Canon UFR II drivers installed"
+# Verify the filter binary exists
+UFR2_FILTER=$(find /usr/lib/cups/filter/ -name '*ufr2*' -o -name '*cnpdf*' -o -name '*canon*' 2>/dev/null | head -1)
+if [ -n "$UFR2_FILTER" ]; then
+  msg_ok "Canon UFR II drivers installed (filter: $(basename "$UFR2_FILTER"))"
 else
-  msg_error "Canon UFR II filter binary missing or broken"
-  msg_info "Checking filter dependencies"
-  ldd /usr/lib/cups/filter/rastertocnpdf 2>&1 || true
+  msg_error "Canon UFR II filter binary not found after install"
+  msg_info "Available CUPS filters:"
+  ls /usr/lib/cups/filter/ 2>&1
 fi
 
 # ---------------------------------------------------------------------------
