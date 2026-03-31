@@ -16,7 +16,6 @@ msg_ok()    { echo -e " ${GN}[OK]${CL}    $1"; }
 msg_error() { echo -e " ${RD}[ERROR]${CL} $1"; }
 
 REPO_URL="https://raw.githubusercontent.com/jensdufour/AirPrint/proxmox"
-DRIVER_URL="https://github.com/jensdufour/AirPrint/raw/master/PPD"
 
 # ---------------------------------------------------------------------------
 # System update
@@ -31,22 +30,17 @@ msg_ok "System updated"
 # ---------------------------------------------------------------------------
 msg_info "Installing dependencies"
 apt-get install -y -qq \
+  curl \
+  ca-certificates \
   cups \
   cups-filters \
-  cups-ipp-utils \
   avahi-daemon \
   dbus \
   ghostscript \
   fonts-freefont-ttf \
   python3 \
   python3-cups \
-  inotify-tools \
-  libxml2 \
-  libglib2.0-0 \
-  libjpeg62-turbo \
-  libpng16-16 \
-  libtiff6 \
-  libstdc++6 >/dev/null 2>&1
+  inotify-tools >/dev/null 2>&1
 msg_ok "Dependencies installed"
 
 # cups-browsed continuously scans the network and uses significant resources
@@ -243,11 +237,18 @@ systemctl enable --now airprint-watcher >/dev/null 2>&1
 msg_ok "AirPrint service generator configured"
 
 # ---------------------------------------------------------------------------
-# Post-install notes
+# Summary
 # ---------------------------------------------------------------------------
-msg_info "Add your printer with socket:// and waiteof=false to avoid duplicate prints:"
-msg_info "  lpadmin -p <NAME> -E -v 'socket://<IP>:9100/?waiteof=false' -m <PPD> -o media=iso_a4_210x297mm"
-msg_info "  lpadmin -p <NAME> -o printer-is-shared=true"
-msg_info "  lpadmin -d <NAME>"
-
+CUPS_IP=$(hostname -I | awk '{print $1}')
 msg_ok "Installation complete"
+echo ""
+msg_info "CUPS web UI: http://${CUPS_IP}:631  (login: admin / admin)"
+msg_info "Change the default password: passwd admin"
+echo ""
+msg_info "Add a printer (replace IP and PPD for your model):"
+echo "  lpadmin -p <NAME> -E -v 'socket://<PRINTER_IP>:9100/?waiteof=false' -m <PPD> -o media=iso_a4_210x297mm"
+echo "  lpadmin -p <NAME> -o printer-is-shared=true"
+echo "  lpadmin -d <NAME>"
+echo ""
+msg_info "Use waiteof=false to prevent duplicate prints on socket connections."
+

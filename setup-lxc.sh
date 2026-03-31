@@ -7,7 +7,7 @@ source <(curl -fsSL https://raw.githubusercontent.com/community-scripts/ProxmoxV
 
 APP="AirPrint"
 var_tags="${var_tags:-printing}"
-var_cpu="${var_cpu:-1}"
+var_cpu="${var_cpu:-2}"
 var_ram="${var_ram:-1024}"
 var_disk="${var_disk:-4}"
 var_os="${var_os:-debian}"
@@ -31,7 +31,11 @@ function update_script() {
   $STD apt-get update
   $STD apt-get -y upgrade
   curl -fsSL https://raw.githubusercontent.com/jensdufour/AirPrint/proxmox/scripts/airprint-generate.py -o /opt/airprint/airprint-generate.py
+  curl -fsSL https://raw.githubusercontent.com/jensdufour/AirPrint/proxmox/install.sh -o /tmp/airprint-install.sh
+  chmod +x /tmp/airprint-install.sh
   systemctl restart airprint-watcher
+  systemctl restart cups
+  systemctl restart avahi-daemon
   msg_ok "Updated $APP LXC"
   exit
 }

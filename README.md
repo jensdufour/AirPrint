@@ -1,6 +1,6 @@
 # AirPrint LXC for Proxmox VE
 
-One-liner to create a Debian 12 LXC container running CUPS as an AirPrint relay with Canon UFR II drivers. Uses the [community-scripts/ProxmoxVE](https://github.com/community-scripts/ProxmoxVE) framework for container creation, interactive setup, and lifecycle management.
+Debian 12 LXC container running CUPS as an AirPrint relay with Canon UFR II V6.20 drivers. Uses the [community-scripts/ProxmoxVE](https://github.com/community-scripts/ProxmoxVE) framework for container creation and lifecycle management.
 
 ## Quick Start
 
@@ -12,18 +12,40 @@ bash -c "$(curl -fsSL https://raw.githubusercontent.com/jensdufour/AirPrint/prox
 
 You will be presented with the standard community-scripts menu (Default Install, Advanced Install, etc.). Once the container is created, open the CUPS web UI at `http://<container-ip>:631` to add your printers.
 
-Default CUPS login: `admin` / `admin` (change after first login).
+Default CUPS login: `admin` / `admin` (change after first login with `passwd admin`).
 
-When adding a printer, make sure to select the correct Canon PPD for your model so that all paper sizes (A4, Letter, etc.) are advertised to AirPrint clients.
+## Adding a Printer
 
-## What gets installed
+Use `socket://` with `waiteof=false` for reliable printing without duplicate jobs:
 
-- Debian 12 unprivileged LXC (via community-scripts framework)
+```bash
+lpadmin -p Canon_iR1133 -E \
+  -v "socket://<PRINTER_IP>:9100/?waiteof=false" \
+  -m "lsb/usr/CNRCUPSIR1133ZK.ppd" \
+  -o media=iso_a4_210x297mm
+
+lpadmin -p Canon_iR1133 -o printer-is-shared=true
+lpadmin -d Canon_iR1133
+systemctl restart cups
+```
+
+Replace the printer name, IP, and PPD with your model. List available PPDs with:
+
+```bash
+lpinfo --make-and-model "Canon" -m
+```
+
+The AirPrint watcher service automatically regenerates Avahi service files when printers change.
+
+## What Gets Installed
+
+- Debian 12 unprivileged LXC (2 CPU, 1024 MB RAM, 4 GB disk)
 - CUPS with network access on port 631
 - Avahi for mDNS/AirPrint discovery
-- Canon UFR II drivers (all models from the main branch PPD folder)
-- Automatic Avahi service file generation when printers change (with proper URF/TXT records for iOS)
+- Canon UFR II V6.20 drivers (downloaded from Canon CDN at install time)
+- Automatic Avahi service file generation with proper URF/TXT records for iOS
 - Default paper size set to A4
+- cups-browsed disabled for performance
 
 ## Files
 
