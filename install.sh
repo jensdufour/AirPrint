@@ -33,8 +33,11 @@ msg_info "Installing dependencies"
 apt-get install -y -qq \
   cups \
   cups-filters \
+  cups-ipp-utils \
   avahi-daemon \
   dbus \
+  ghostscript \
+  fonts-freefont-ttf \
   python3 \
   python3-cups \
   inotify-tools >/dev/null 2>&1
