@@ -242,4 +242,12 @@ systemctl daemon-reload >/dev/null 2>&1
 systemctl enable --now airprint-watcher >/dev/null 2>&1
 msg_ok "AirPrint service generator configured"
 
+# ---------------------------------------------------------------------------
+# Post-install notes
+# ---------------------------------------------------------------------------
+msg_info "Add your printer with socket:// and waiteof=false to avoid duplicate prints:"
+msg_info "  lpadmin -p <NAME> -E -v 'socket://<IP>:9100/?waiteof=false' -m <PPD> -o media=iso_a4_210x297mm"
+msg_info "  lpadmin -p <NAME> -o printer-is-shared=true"
+msg_info "  lpadmin -d <NAME>"
+
 msg_ok "Installation complete"
