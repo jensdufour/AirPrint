@@ -40,7 +40,13 @@ apt-get install -y -qq \
   fonts-freefont-ttf \
   python3 \
   python3-cups \
-  inotify-tools >/dev/null 2>&1
+  inotify-tools \
+  libxml2 \
+  libglib2.0-0 \
+  libjpeg62-turbo \
+  libpng16-16 \
+  libtiff6 \
+  libstdc++6 >/dev/null 2>&1
 msg_ok "Dependencies installed"
 
 # cups-browsed continuously scans the network and uses significant resources
@@ -64,8 +70,8 @@ tmpdir=$(mktemp -d)
 
 curl -fsSL -L "$DRIVER_URL/cnrdrvcups-ufr2-uk_5.20-1_amd64.deb" \
   -o "$tmpdir/ufr2-core.deb"
-dpkg -i "$tmpdir/ufr2-core.deb" >/dev/null 2>&1 \
-  || apt-get install -f -y >/dev/null 2>&1
+dpkg -i "$tmpdir/ufr2-core.deb" >/dev/null 2>&1 || true
+apt-get install -f -y >/dev/null 2>&1
 
 PPD_PACKAGES=(
   cnrcupsiprc710zk_5.20-1_all.deb
@@ -110,9 +116,17 @@ for pkg in "${PPD_PACKAGES[@]}"; do
   curl -fsSL -L "$DRIVER_URL/$pkg" -o "$tmpdir/$pkg" 2>/dev/null &&
     dpkg -i "$tmpdir/$pkg" >/dev/null 2>&1 || true
 done
-apt-get install -f -y >/dev/null 2>&1 || true
+apt-get install -f -y >/dev/null 2>&1
 rm -rf "$tmpdir"
-msg_ok "Canon UFR II drivers installed"
+
+# Verify the UFR II filter is executable
+if [ -x /usr/lib/cups/filter/rastertocnpdf ]; then
+  msg_ok "Canon UFR II drivers installed"
+else
+  msg_error "Canon UFR II filter binary missing or broken"
+  msg_info "Checking filter dependencies"
+  ldd /usr/lib/cups/filter/rastertocnpdf 2>&1 || true
+fi
 
 # ---------------------------------------------------------------------------
 # CUPS configuration
