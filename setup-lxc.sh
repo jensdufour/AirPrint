@@ -30,7 +30,7 @@ function update_script() {
   msg_info "Updating $APP LXC"
   $STD apt-get update
   $STD apt-get -y upgrade
-  curl -fsSL https://raw.githubusercontent.com/jensdufour/AirPrint/master/scripts/airprint-generate.py -o /opt/airprint/airprint-generate.py
+  curl -fsSL https://raw.githubusercontent.com/jensdufour/AirPrint/proxmox/scripts/airprint-generate.py -o /opt/airprint/airprint-generate.py
   systemctl restart airprint-watcher
   msg_ok "Updated $APP LXC"
   exit
@@ -39,11 +39,8 @@ function update_script() {
 start
 build_container
 
-# build_container installs base packages and runs the community-scripts
-# install script URL which does not exist for this app (external project).
-# Run our own install script inside the container instead.
 msg_info "Installing AirPrint"
-lxc-attach -n "$CTID" -- bash -c "$(curl -fsSL https://raw.githubusercontent.com/jensdufour/AirPrint/proxmox/airprint-install.sh)"
+lxc-attach -n "$CTID" -- bash -c "$(curl -fsSL https://raw.githubusercontent.com/jensdufour/AirPrint/proxmox/install.sh)"
 msg_ok "Installed AirPrint"
 
 description

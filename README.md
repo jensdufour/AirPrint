@@ -14,18 +14,21 @@ You will be presented with the standard community-scripts menu (Default Install,
 
 Default CUPS login: `admin` / `admin` (change after first login).
 
+When adding a printer, make sure to select the correct Canon PPD for your model so that all paper sizes (A4, Letter, etc.) are advertised to AirPrint clients.
+
 ## What gets installed
 
 - Debian 12 unprivileged LXC (via community-scripts framework)
 - CUPS with network access on port 631
 - Avahi for mDNS/AirPrint discovery
 - Canon UFR II drivers (all models from the main branch PPD folder)
-- Automatic Avahi service file generation when printers change
-- Auto-login on console, MOTD with container info
+- Automatic Avahi service file generation when printers change (with proper URF/TXT records for iOS)
+- Default paper size set to A4
 
 ## Files
 
 | File | Runs on | Purpose |
 |---|---|---|
 | `setup-lxc.sh` | Proxmox host | CT script: sources community-scripts build.func, creates LXC |
-| `airprint-install.sh` | Inside LXC | Installs CUPS, Avahi, Canon drivers, watcher service |
+| `install.sh` | Inside LXC | Installs CUPS, Avahi, Canon drivers, watcher service |
+| `scripts/airprint-generate.py` | Inside LXC | Generates Avahi service files with AirPrint TXT records |
