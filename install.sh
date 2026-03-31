@@ -40,6 +40,12 @@ apt-get install -y -qq \
   inotify-tools >/dev/null 2>&1
 msg_ok "Dependencies installed"
 
+# cups-browsed continuously scans the network and uses significant resources
+msg_info "Disabling cups-browsed"
+systemctl disable --now cups-browsed >/dev/null 2>&1 || true
+systemctl mask cups-browsed >/dev/null 2>&1 || true
+msg_ok "cups-browsed disabled"
+
 # ---------------------------------------------------------------------------
 # Default paper size (A4)
 # ---------------------------------------------------------------------------
@@ -117,13 +123,20 @@ SystemGroup lpadmin
 Listen 0.0.0.0:631
 Listen /run/cups/cups.sock
 
-Browsing On
-BrowseLocalProtocols dnssd
+# Disable CUPS browsing; Avahi handles mDNS/AirPrint discovery
+Browsing Off
+
+HostNameLookups Off
+DNSSDAutoRegister No
 
 DefaultAuthType Basic
 WebInterface Yes
 ServerAlias *
 DefaultEncryption Never
+
+PreserveJobHistory No
+PreserveJobFiles No
+MaxJobs 100
 
 <Location />
   Order allow,deny
