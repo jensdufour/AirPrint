@@ -73,26 +73,14 @@ CANON_URL="http://gdlp01.c-wss.com/gds/8/0100007658/47/linux-UFRII-drv-v620-m17n
 if curl -fsSL -L "$CANON_URL" -o "$tmpdir/canon-ufr2.tar.gz"; then
   tar -xzf "$tmpdir/canon-ufr2.tar.gz" -C "$tmpdir"
 
-  # Find and install the Debian amd64 packages
-  DEBS_DIR=$(find "$tmpdir" -type d -name 'amd64' | head -1)
-  if [ -z "$DEBS_DIR" ]; then
-    DEBS_DIR=$(find "$tmpdir" -type d -name '64-bit_Driver' | head -1)
+  # Install the amd64 package (single .deb contains driver + PPDs)
+  DEB_FILE=$(find "$tmpdir" -path '*/x64/Debian/*.deb' -type f | head -1)
+  if [ -n "$DEB_FILE" ]; then
+    dpkg -i "$DEB_FILE" 2>&1 || true
+    apt-get install -f -y >/dev/null 2>&1
+  else
+    msg_error "Could not find amd64 .deb in Canon tarball"
   fi
-  if [ -z "$DEBS_DIR" ]; then
-    DEBS_DIR="$tmpdir"
-  fi
-
-  # Install common package first, then the UFR II driver, then PPDs
-  for deb in $(find "$DEBS_DIR" -name '*common*.deb' -type f 2>/dev/null); do
-    dpkg -i "$deb" 2>&1 || true
-  done
-  for deb in $(find "$DEBS_DIR" -name '*ufr2*amd64*.deb' -type f 2>/dev/null); do
-    dpkg -i "$deb" 2>&1 || true
-  done
-  for deb in $(find "$DEBS_DIR" -name 'cnrcups*.deb' -type f 2>/dev/null); do
-    dpkg -i "$deb" 2>&1 || true
-  done
-  apt-get install -f -y >/dev/null 2>&1
 else
   msg_error "Could not download Canon driver from Canon CDN"
 fi
@@ -100,7 +88,7 @@ fi
 rm -rf "$tmpdir"
 
 # Verify the filter binary exists
-UFR2_FILTER=$(find /usr/lib/cups/filter/ -name '*ufr2*' -o -name '*cnpdf*' -o -name '*canon*' 2>/dev/null | head -1)
+UFR2_FILTER=$(find /usr/lib/cups/filter/ -name '*ufr2*' 2>/dev/null | head -1)
 if [ -n "$UFR2_FILTER" ]; then
   msg_ok "Canon UFR II drivers installed (filter: $(basename "$UFR2_FILTER"))"
 else
