@@ -1,10 +1,26 @@
-# AirPrint Docker  <a href="https://hub.docker.com/r/firilith/airprint/"><img src="https://img.shields.io/docker/pulls/firilith/airprint.svg?style=flat-square&logo=docker" alt="Docker Pulls"></a>
+# AirPrint  <a href="https://hub.docker.com/r/firilith/airprint/"><img src="https://img.shields.io/docker/pulls/firilith/airprint.svg?style=flat-square&logo=docker" alt="Docker Pulls"></a>
 
-Alpine-based Docker image running CUPS as an AirPrint relay with Canon UFR II V6.20 drivers. The Canon driver is downloaded from Canon CDN at build time.
+AirPrint is being consolidated into a single repository with branch-based installation paths.
+
+- Recommended implementation: [`main`](https://github.com/jensdufour/AirPrint/tree/main) for the Proxmox/Debian LXC bootstrap flow.
+- Legacy Docker/CUPS implementation: this branch and [`legacy/docker-cups`](https://github.com/jensdufour/AirPrint/tree/legacy/docker-cups).
+- Older Proxmox community-scripts variant: [`legacy/proxmox-lxc`](https://github.com/jensdufour/AirPrint/tree/legacy/proxmox-lxc).
+
+This branch remains the original Alpine-based Docker image running CUPS as an AirPrint relay with Canon UFR II V6.20 drivers. The Canon driver is downloaded from Canon CDN at build time.
 
 Uses host networking mode for mDNS/AirPrint discovery.
 
-> For a Proxmox LXC version, see the [`proxmox`](https://github.com/jensdufour/AirPrint/tree/proxmox) branch.
+## Branch Guide
+
+| Branch | Purpose |
+|---|---|
+| `main` | Current recommended implementation: Proxmox bootstrap that builds an unprivileged Debian 12 LXC with AirPrint, AirScan, and Samba scan-to-folder fallback |
+| `legacy/docker-cups` | Original Docker-based CUPS/AirPrint relay |
+| `legacy/proxmox-lxc` | Earlier Proxmox LXC implementation based on community-scripts |
+
+If you are starting fresh, use [`main`](https://github.com/jensdufour/AirPrint/tree/main). If you are already deployed on Docker and want to stay there, keep using this branch.
+
+## Legacy Docker Deployment
 
 ## Compose
 
