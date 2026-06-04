@@ -1,4 +1,10 @@
-# airprint-v2
+# AirPrint
+
+AirPrint now lives in a single repository.
+
+- This `main` branch is the recommended implementation.
+- The legacy Docker/CUPS implementation remains available on [`legacy/docker-cups`](https://github.com/jensdufour/AirPrint/tree/legacy/docker-cups).
+- The older community-scripts-based Proxmox flow remains available on [`legacy/proxmox-lxc`](https://github.com/jensdufour/AirPrint/tree/legacy/proxmox-lxc).
 
 A one-shot Proxmox helper that turns a legacy network printer (originally
 designed for the Canon **imageRUNNER 1133A**) into a modern **AirPrint /
@@ -32,7 +38,7 @@ clients discover it natively.
 Run this on the **Proxmox host shell** as `root`:
 
 ```bash
-bash -c "$(curl -fsSL https://raw.githubusercontent.com/jensdufour/airprint-v2/main/airprint-v2.sh)"
+bash -c "$(curl -fsSL https://raw.githubusercontent.com/jensdufour/AirPrint/main/airprint-v2.sh)"
 ```
 
 Non-interactive (CI / re-runs):
@@ -46,7 +52,7 @@ AIRPRINT_VLAN=10 \
 AIRPRINT_IP=dhcp \
 AIRPRINT_PRINTER_IP=192.168.10.50 \
 AIRPRINT_PRINTER_MODEL="Canon iR1133A" \
-bash -c "$(curl -fsSL https://raw.githubusercontent.com/jensdufour/airprint-v2/main/airprint-v2.sh)"
+bash -c "$(curl -fsSL https://raw.githubusercontent.com/jensdufour/AirPrint/main/airprint-v2.sh)"
 ```
 
 ---
@@ -73,7 +79,7 @@ bash -c "$(curl -fsSL https://raw.githubusercontent.com/jensdufour/airprint-v2/m
 ## Repo layout
 
 ```
-airprint-v2/
+AirPrint/
 ├── airprint-v2.sh             # Host entry point (one-liner target)
 ├── install.sh                 # Runs INSIDE the LXC
 ├── uninstall.sh               # Tear-down helper (in-container)
